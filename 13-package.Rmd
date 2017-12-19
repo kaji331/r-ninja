@@ -1,6 +1,6 @@
-# 编写R包
+# 编写R包 {#r-package}
 
-我们不介绍官方的编写方法，因为它需要太多的人力。我们的观点是能自动化的全都自动化（凡是需要记忆的都是将来出错的隐患），本章基于一个范例R包**rmimi**：<https://github.com/yihui/rmini>。尽管我们不推崇官方的办法，但还是需要说明一下，官方手册是“[Writing R Extensions](http://cran.r-project.org/doc/manuals/R-exts.html)”，它涵盖了所有编写R包的细节和规则，忍者可能需要时不时参考一下，但通常不需要通读。继续阅读之前，请用GIT将**rmini**包克隆到本地：
+我们不介绍官方的编写方法，因为它需要太多的人力。我们的观点是能自动化的全都自动化（凡是需要记忆的都是将来出错的隐患），本章基于一个范例R包**rmimi** [@R-rmini]：<https://github.com/yihui/rmini>。尽管我们不推崇官方的办法，但还是需要说明一下，官方手册是“[Writing R Extensions](http://cran.r-project.org/doc/manuals/R-exts.html)”，它涵盖了所有编写R包的细节和规则，忍者可能需要时不时参考一下，但通常不需要通读。继续阅读之前，请用GIT将**rmini**包克隆到本地：
 
 ```bash
 git clone git://github.com/yihui/rmini.git
@@ -73,12 +73,10 @@ roxygenize('rmini') # 保证rmini文件夹在当前目录下
 
 data文件夹放R数据，扩展名为`rda`，通常可以用`save()`函数生成，例如
 
-
-```r
+```{r eval=FALSE}
 iris3 = iris
-save(iris3, file = "iris3.rda")
+save(iris3, file = 'iris3.rda')
 ```
-
 
 然后把`iris3.rda`文件放到`data`文件夹底下。对每一个数据，都必须有相应的Rd文档，它可以通过roxygen生成，参见<https://github.com/yihui/rmini/blob/master/R/data.R>。其中关键点有：
 
@@ -89,11 +87,9 @@ save(iris3, file = "iris3.rda")
 
 demo文件夹里可以放一些演示，这些演示文件将来可以用`demo()`函数来调用。一个演示文件就是一个R代码文件，注意所有的演示名称都必须写入一个`00Index`文件，里面同时也要写演示的标题，参见<https://github.com/yihui/rmini/tree/master/demo>。**rmini**包中有一个演示叫`mini_fun.R`，那么安装好这个包之后我们可以以这样的方式观看这个演示：
 
-
-```r
-demo("mini_fun", package = "rmini")
+```{r eval=FALSE}
+demo('mini_fun', package = 'rmini')
 ```
-
 
 inst文件夹下的所有文件都会被原封不动复制到安装包的路径下，这个文件夹下可以放任意文件，但有一个例外是`doc`，它用来放R包的手册（Vignette），后文详述。
 
@@ -113,32 +109,12 @@ roxygen注释对这一类命名空间有一系列标签，如一个函数的文�
 
 S3泛型函数的核心思想是基于对象的类去匹配函数，示例参见<https://github.com/yihui/rmini/blob/master/R/S3.R>。S3函数可以用`UseMethod()`去定义，然后函数加`.类名`就是具体的子函数，例如`hello()`这个函数有两个子函数`hello.default()`和`hello.character()`，分别对应它的默认方法以及对字符对象应用的方法。
 
-
-```r
+```{r hello-s3}
 library(rmini)
 hello(1)
+hello('a')
+hello(structure(1, class = 'world'))
 ```
-
-```
-## hello, numeric
-```
-
-```r
-hello("a")
-```
-
-```
-## Hi! I love characters!
-```
-
-```r
-hello(structure(1, class = "world"))
-```
-
-```
-## hello, world
-```
-
 
 对S3子函数，roxygen中可以用`@S3method 函数名 类名`来声明这是一个S3泛型函数，而不是一个普通的`*.*`函数，这一点非常重要，它告诉R一个形如`foo.bar`的函数到底该如何调用。同时这也引出一个编程规范的问题：如果不是S3函数，尽量不要在函数名中用点，比如可以以下划线代替（`foo_bar`），可惜R内部就存在这种混乱，如`package.skeleton()`等函数都只是普通函数。声明了`@S3method`的函数将来会在NAMESPACE文件中添加一项`S3method()`，R依据这个命名空间文件来决定带点的函数究竟是什么样的函数。
 

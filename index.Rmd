@@ -1,0 +1,59 @@
+---
+title: R语言忍者秘笈
+author: [谢益辉, 肖楠, 坑主三, 坑主四]
+date: "`r Sys.Date()`"
+knit: "bookdown::render_book"
+documentclass: book
+bibliography: [packages.bib]
+biblio-style: apalike
+link-citations: yes
+site: bookdown::bookdown_site
+url: 'https\://bookdown.org/yihui/r-ninja/'
+github-repo: yihui/r-ninja
+cover-image: images/cover.jpg
+description: "本书要写什么其实我也不太清楚。迷迷瞪瞪中，感觉写一些奇门遁甲之术会比较有趣吧，算是程序猿/媛的自娱自乐了，如果在自娱自乐之外，读者能学到一些有用的技能，那就更好了。"
+---
+
+```{r include=FALSE}
+options(digits = 4, htmltools.dir.version = FALSE)
+if (!knitr:::loadable('rmini')) devtools::install_github('yihui/rmini')
+
+knitr::opts_chunk$set(par = TRUE)
+
+knitr::knit_hooks$set(par = function(before, options, envir){
+  if (before && options$fig.show != 'none')
+    par(mar = c(4, 4, .1, .1), cex.lab = .95, cex.axis = .9, mgp = c(2, .7, 0), tcl = -.3)
+})
+```
+
+# 引言 {#intro}
+
+R语言 [@R-base] 是由统计学家发明的一门程序语言，这个特殊的背景让这门语言在计算机专业人士眼中看起来也许很奇怪：语法松散、数据结构不严谨、充斥着黑魔法，等等。如果能结合数据分析的背景去看待它，就会发现它还是有很多精妙之处的。
+
+学一门语言不可能通过两天时间把语法看完了事就行，必须得实战练习：一来巩固语法，二来增加经验值。本书根据统计之都论坛（<http://cos.name/cn/>）六年中近六千帖子和三万回帖整理并加入作者的个人经验而写成。我们找的有这样几种帖子：
+
+1. 版主们被问得怒火丛生，因为同样的问题被问了八百遍了，但论坛规定版主得修炼内力，所以老实版主回帖提供老链接，其它版主默默；
+1. 大家讨论得热火朝天，提出各种解决方案，但某网友一行代码扔出来，让所有人都默默；
+1. 一个帖子当时只有寥寥几个回复，好像没什么人搭理，默默过了两年，楼主突然冒出来说，哇，这一招真管用；
+1. 一个帖子楼主默默写了很久很久，但根本人没有回复，可能当时大家的查克拉都没到那个量级；
+
+总之，我们追求的是高效率的R应用，就像一名忍者，了解大局形势，也善于利用细节，飞檐走壁上天入地，准确而迅速地完成任务。
+
+![](images/cover.jpg)
+
+## 术语说明 {#terms .unnumbered}
+
+foobar
+:   没有特定含义，就是泛指一个对象或名称，有时候也拆开用，比如foo包bar函数，计算机领域常用语，当年这玩意儿可是让我疑惑了好久，究竟啥是foobar哩
+
+## 贡献力量 {#contrib .unnumbered}
+
+按照惯例，有钱的请捧个钱场，没钱的请回家取钱来捧个钱场。君子不谈钱，但君子要吃饭。程序猿嘛，你们都懂的。
+
+> 我是一个程序猿，一天我坐在路边一边喝水一边苦苦查错，这时一个乞丐在我边上坐下了，开始要饭，我觉得他可怜，就给了他一块钱，然后接着调试程序。他可能生意不好，就无聊地看看我在干什么，然后过了一会儿，他幽幽地说，这里少了一个分号。
+
+![](images/wechat.png)
+
+当然我还没沦落到街头要饭的地步，并不差这点钱，从这本书稿收到的所有打赏以及将来的稿费我计划全部捐赠给我的高中，那些善良的老师们太辛苦。
+
+如果你想参与本书的写作，我也非常欢迎，请直接在Github上提交合并请求（Pull Request）。如果只是简单的错别字或几个词的修改，请直接点击顶部的编辑按钮，Github会自动为你准备好合并请求，提交合并请求时请注明“在此我声明我贡献的文字由本人原创，并将这些文字的所有权利（包括版权）转交给《R语言忍者秘笈》的作者”。如果是非常大量的文字贡献，挖的坑真心大，我会很荣幸把你列为本书作者（绝情坑坑主）。

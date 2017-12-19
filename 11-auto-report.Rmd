@@ -1,4 +1,4 @@
-# 自动化报告
+# 自动化报告 {#auto-report}
 
 人类和计算机有各自擅长的东西，人擅长下指令，计算机擅长执行指令，而且对计算机来说，一个任务做一遍或是做一百遍可能只有时间上的区别，但一个人要是同一个任务重复做一百遍可能就抓狂了，而且容易出错。先跑个题，我想起来有个[短片](http://v.youku.com/v_show/id_XMjQyNjU3NjA0.html)叫《What is that》（那是什么），讲的是一对父子和一只麻雀的故事，网上一[搜](http://www.dfg.cn/gb/jtjy/qzp/56-ai.htm)就可以找到；当然，它的主题并不是关于人不能忍受重复劳动，我只是跑题而已。
 
@@ -37,52 +37,15 @@ Sweave的诞生也跟TeX绑在一起，这就为它后来的应用埋下了悲�
 
 你要是没学习过Sweave，最好别去花那时间，可以直接跳入**knitr**世界，它兼容Sweave并提供了无限的扩展性，这本书就是用它基于Markdown写的。先举一个hello world例子吧：
 
-
-```r
+```{r knitr-hello}
 1 + 2
+dnorm(0) # 标准正态分布在0处的密度值
+summary(lm(dist ~ speed, data=cars)) # 一个回归
 ```
-
-```
-## [1] 3
-```
-
-```r
-dnorm(0)  # 标准正态分布在0处的密度值
-```
-
-```
-## [1] 0.3989
-```
-
-```r
-summary(lm(dist ~ speed, data = cars))  # 一个回归
-```
-
-```
-## 
-## Call:
-## lm(formula = dist ~ speed, data = cars)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -29.07  -9.53  -2.27   9.21  43.20 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)  -17.579      6.758   -2.60    0.012 *  
-## speed          3.932      0.416    9.46  1.5e-12 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 15.4 on 48 degrees of freedom
-## Multiple R-squared:  0.651,	Adjusted R-squared:  0.644 
-## F-statistic: 89.6 on 1 and 48 DF,  p-value: 1.49e-12
-```
-
 
 上面你看到的是R的输出，其实它的源文件只有5行，1行标记代码开始，3行R代码，1行标记正文开始，如下所示：
 
-    ```{r knitr-hello}
+    `r '\x60\x60\x60{r knitr-hello}'`
     1 + 2
     dnorm(0) # 标准正态分布在0处的密度值
     summary(lm(dist ~ speed, data=cars)) # 一个回归
@@ -96,11 +59,9 @@ summary(lm(dist ~ speed, data = cars))  # 一个回归
 
 LaTeX文档（扩展名`Rnw`）里面仍然沿用历史规定，代码放在`<<>>=`之下，`<<`前面最多只允许有空格字符而不能有任何其它字符（一般情况下它前面什么都没有）；在`<<`与`>>`之间我们可以对下面的代码设置一些运行选项，例如`<<foo, echo=TRUE, eval=TRUE>>=`，其中第一个选项没有取值，它是这段代码的标签，这个选项是代码段的唯一标识符，所以不同代码段必须用不同的标签，它主要被用来写图片文件名（如果下面的代码会生成图片的话）以及缓存文件名，如果标签为空，那么**knitr**会自动生成形如`unnamed-chunk-1`、`unnamed-chunk-2`之类的标签；所有自带选项参见<http://yihui.name/knitr/options>，选项列表很长，因为可以控制的细节非常多。`@`字符用来标记下面要开始正文了，它同样需要出现在一行的顶头或用空格缩进，后面可选择性跟着LaTeX注释（以`%`开头）。在`<<>>=`里面设置的代码段选项是局部选项，仅仅对当前代码段有效；我们也可以通过R对象`opts_chunk`设置全局选项，如：
 
-
-```r
-opts_chunk$set(echo = FALSE, fig.height = 4)
+```{r opts-chunk, eval=FALSE}
+opts_chunk$set(echo=FALSE, fig.height=4)
 ```
-
 
 它可以放在任意R代码段中（通常在一篇文档的第一个代码段中），从这句话出现开始，后面的代码段都会默认使用这里设置的选项，但注意局部选项优先于全局选项，例如，我们全局设置了`echo`选项为`FALSE`，但对一个代码段`<<echo=TRUE>>=`来说，它所用的`echo`值仍然为`TRUE`，相比之下，代码段`<<>>=`用的就是`FALSE`（从全局选项继承过来的）。初学者可以暂时忽略所有选项的设置，因为**knitr**包在设计的时候已经花了很多精力给所有的选项设置合适的默认值了。
 
@@ -117,7 +78,7 @@ opts_chunk$set(echo = FALSE, fig.height = 4)
 
 由于LaTeX文档入门门槛高，而网页则相对容易一些，**knitr**在设计之初就考虑了网页格式，它有两种可能：一是原始HTML格式，即把R代码嵌入HTML代码；二是Markdown（下文简称MD），它是非常轻量级的标记语言，可以很方便翻译为HTML语言。我一般倾向于用后者。MD的出现是为了简化HTML，把常用的HTML标签用极度简化的语法写出来，这一点值得程序设计者学习：你可以写一个无所不能但繁琐的程序，也可以写能实现常用功能但简单的程序。R就有前者的特征，尤其是很多函数有长串的参数，看着就让人发蒙，而实际上只有少数参数是常用的，当然，这一点上不必吐槽，因为R是一门基础语言，功能优先。这是题外话。
 
-HTML文档混合R代码的语法为：以`<!--begin.rcode label, opt=value`开始R代码，以`end.rcode-->`开始正文。全局选项放在`<!--roptions -->`中，行内代码放在`<!--rinline -->`中。熟悉HTML语法的都知道，`<!-- -->`是HTML注释的语法。我对Sweave语法不太满意的一点也在此：文学化编程的文档最好能避免破坏原文档的语法，比如要是我来设计Sweave，我肯定不会用`<<>>=`语法，因为它干扰了TeX文档，我会倾向于把R代码段放在TeX注释中，这样即使不编译，这份文档也是合法的TeX文档。以下是一个简单的HTML例子：
+HTML文档混合R代码的语法为：以`<!--begin.rcode label, opt=value`开始R代码，以`end.rcode-->`开始正文。行内代码放在`<!--rinline -->`中。熟悉HTML语法的都知道，`<!-- -->`是HTML注释的语法。我对Sweave语法不太满意的一点也在此：文学化编程的文档最好能避免破坏原文档的语法，比如要是我来设计Sweave，我肯定不会用`<<>>=`语法，因为它干扰了TeX文档，我会倾向于把R代码段放在TeX注释中，这样即使不编译，这份文档也是合法的TeX文档。以下是一个简单的HTML例子：
 
     hello, the value of 2 * pi is <!--rinline 2*pi -->
     
@@ -127,11 +88,11 @@ HTML文档混合R代码的语法为：以`<!--begin.rcode label, opt=value`开�
 
 HTML和R代码混合的文档我们称之为R HTML文档，通常扩展名为`*.Rhtml`。
 
-MD文档语法为：以三个反引号和一对大括号开始R代码，以三个反引号开始正文，上面的hello world例子已经显示了代码段的基本结构。行内代码放在`` `r ` ``之中，全局选项在`` `ro or` ``中（R options）。以下是一个简单的MD例子：
+MD文档语法为：以三个反引号和一对大括号开始R代码，以三个反引号开始正文，上面的hello world例子已经显示了代码段的基本结构。行内代码放在`` `r ` ``之中。以下是一个简单的MD例子：
 
-    hello, the value of 2 * pi is `r 2*pi`
+    hello, the value of 2 * pi is `r paste('\x60', 'r 2*pi', '\x60', sep = '')`
     
-    ```{r foo-label}
+    `r '\x60\x60\x60{r foo-label}'`
     rnorm(5)
     ```
 
@@ -151,58 +112,25 @@ R Markdown文档扩展名通常为`*.Rmd`。
 
 简单举两个例子，注意它们的源代码完全相同，但因为代码段选项不同，所以输出也有所不同：
 
-
-```r
+```{r ktext-ex1, tidy=FALSE, warning=TRUE}
 # 不重排代码：tidy=FALSE, warning=TRUE
 fib=function(n){if(n<2)return(n);fib(n-1)+fib(n-2)}
 1:3+1:2
 ```
 
-```
-## Warning: longer object length is not a multiple of shorter object length
-```
-
-```
-## [1] 2 4 4
-```
-
-
-
-```r
+```{r ktext-ex2, tidy=TRUE, warning=FALSE}
 # 重排代码并隐藏警告信息：warning=FALSE
-fib = function(n) {
-    if (n < 2) 
-        return(n)
-    fib(n - 1) + fib(n - 2)
-}
-1:3 + 1:2
+fib=function(n){if(n<2)return(n);fib(n-1)+fib(n-2)}
+1:3+1:2
 ```
-
-```
-## [1] 2 4 4
-```
-
 
 默认情况下，文本输出会被加上前缀`##`，这是考虑到读者可能会复制文中的代码在自己的R中运行，而`#`是R的注释符，所以输出不会干扰代码的复制和粘贴运行。Sweave没有这个考虑，并且更糟糕的是它给源代码也加上了前缀`>`和`+`，这样看报告的人想要复制代码就痛苦之极了，因为你必须把这些多余的字符去掉。
 
-表格实际上也是纯文本构成的（你要是天天抱着Word用当然永远都不能明白这句话！），但R没有自带的表格生成函数，所以我们往往需要特殊处理。视输出格式不同，我们可以使用**xtable**或**ascii**包来把R对象（尤其是数据框）转化为相应格式的表格代码，此时需要我们使用原样输出，如：
+表格实际上也是纯文本构成的（你要是天天抱着Word用当然永远都不能明白这句话！），但R没有自带的表格生成函数，所以我们往往需要特殊处理。视输出格式不同，我们可以使用`knitr::kable()`函数或**xtable**包或**ascii**包来把R对象（尤其是数据框）转化为相应格式的表格代码，此时需要我们使用原样输出，如：
 
-
-```r
-library(xtable)
-xtable(head(mtcars[, 1:5]))
+```{r ktable-ex, results='asis'}
+knitr::kable(head(mtcars[, 1:5]))
 ```
-
-<TABLE >
-<TR> <TH>  </TH> <TH> mpg </TH> <TH> cyl </TH> <TH> disp </TH> <TH> hp </TH> <TH> drat </TH>  </TR>
-  <TR> <TD align="right"> Mazda RX4 </TD> <TD align="right"> 21.00 </TD> <TD align="right"> 6.00 </TD> <TD align="right"> 160.00 </TD> <TD align="right"> 110.00 </TD> <TD align="right"> 3.90 </TD> </TR>
-  <TR> <TD align="right"> Mazda RX4 Wag </TD> <TD align="right"> 21.00 </TD> <TD align="right"> 6.00 </TD> <TD align="right"> 160.00 </TD> <TD align="right"> 110.00 </TD> <TD align="right"> 3.90 </TD> </TR>
-  <TR> <TD align="right"> Datsun 710 </TD> <TD align="right"> 22.80 </TD> <TD align="right"> 4.00 </TD> <TD align="right"> 108.00 </TD> <TD align="right"> 93.00 </TD> <TD align="right"> 3.85 </TD> </TR>
-  <TR> <TD align="right"> Hornet 4 Drive </TD> <TD align="right"> 21.40 </TD> <TD align="right"> 6.00 </TD> <TD align="right"> 258.00 </TD> <TD align="right"> 110.00 </TD> <TD align="right"> 3.08 </TD> </TR>
-  <TR> <TD align="right"> Hornet Sportabout </TD> <TD align="right"> 18.70 </TD> <TD align="right"> 8.00 </TD> <TD align="right"> 360.00 </TD> <TD align="right"> 175.00 </TD> <TD align="right"> 3.15 </TD> </TR>
-  <TR> <TD align="right"> Valiant </TD> <TD align="right"> 18.10 </TD> <TD align="right"> 6.00 </TD> <TD align="right"> 225.00 </TD> <TD align="right"> 105.00 </TD> <TD align="right"> 2.76 </TD> </TR>
-   </TABLE>
-
 
 原样输出（`results='asis'`）的含义是这样：默认情况下，输出会被装饰在一些特定的标签内，例如在LaTeX格式输出时，普通文本被放在`verbatim`环境中；有时候我们希望用R代码直接输出特定格式的文本，比如直接写TeX代码，那么我们可以用`cat()`函数直接写文本，此时我们希望写出来的文本就直接是TeX代码，而不要被放到`verbatim`环境中（否则几乎任何TeX代码都会被当作普通文本在TeX中原样输出，TeX的`verbatim`环境你懂的）。例如在一个原样输出的代码段中，我们可以用
 
@@ -241,15 +169,12 @@ cat('\\includegraphics{foobar}')
 
 代码段钩子对应着自定义的代码段选项，也就是所有默认选项之外的选项，注意**knitr**的代码段选项名称没有限制，你可以写任意合法取值的选项。代码段钩子函数可以通过`knit_hooks`对象设定。下面举个例子说明新选项和钩子函数如何关联。我们先构造一个新钩子函数叫`par`：
 
-
-```r
+```{r knit-hook-ex, eval=FALSE}
 knit_hooks$set(par = function(before, options, envir) {
-    # 运行代码前先设置图形边距参数
-    if (before) 
-        par(mar = c(4, 4, 0.1, 0.1))
+  # 运行代码前先设置图形边距参数
+  if (before) par(mar = c(4, 4, .1, .1))
 })
 ```
-
 
 代码段钩子有固定的格式，它是一个有三个参数的函数，其中`before`是逻辑值，表示这个钩子在代码段之前执行（`TRUE`）还是之后执行（`FALSE`），`options`是一个列表，装有所有当前代码段的选项，`envir`是一个环境对象，是当前代码段执行的环境。代码段钩子设置好之后，每当一个代码段被运行前后，**knitr**都会检查这个代码段是否有一个跟钩子函数**同名**的选项，如果有且非空，那么就会运行钩子函数。
 
@@ -291,7 +216,7 @@ knit_hooks$set(par = function(before, options, envir) {
 
 显然，后来这个故事有了新发展，随着我对Sweave的日益不满，我写完**knitr**包之后也顺便给LyX新增了一个knitr模块。在LyX文档设置中，选入这个模块，在编译的时候LyX会先调用R和**knitr**包处理文档，再交回给LyX去编译为PDF。
 
-![LyX中的knitr模块](http://i.imgur.com/jEKSh.png)
+![LyX中的knitr模块](https://i.imgur.com/jEKSh.png)
 
 在LyX中输入R代码可以用快捷键`Ctrl + L`，然后按前面介绍的LaTeX类语法写（为什么是LaTeX语法？）：
 
@@ -301,11 +226,9 @@ knit_hooks$set(par = function(before, options, envir) {
 
 事实上**knitr**包的大多数PDF手册都是用LyX写的，读者可以在这里找到它们：
 
-
-```r
-system.file("examples", package = "knitr")
+```{r knitr-lyx, eval=FALSE}
+system.file('examples', package = 'knitr')
 ```
-
 
 注意**knitr**的支持从LyX 2.0.3才开始，所以如果你用的是更旧的版本的话，会无法打开这些例子。
 
@@ -315,9 +238,9 @@ RStudio没有LyX那样的可视化界面，但它作为R世界的编辑器后起
 
 RStudio本来是一个R代码编辑器，它的界面有足够的现代风，而且这个界面竟然同时有桌面版和服务器版，后者的出现着实让人吃惊了一番，想一下，在某个云端运行着RStudio，你可以通过浏览器直接在里面使用R，只要服务器不关机，这个R永不掉线。
 
-![RStudio的选项配置界面](http://i.imgur.com/Z72Qc.png)
+![RStudio的选项配置界面](https://i.imgur.com/Z72Qc.png)
 
-![RStudio中的Rnw文档，点Compile PDF按钮就可以一键生成PDF](http://i.imgur.com/SGsbj.png)
+![RStudio中的Rnw文档，点Compile PDF按钮就可以一键生成PDF](https://i.imgur.com/SGsbj.png)
 
 刚开始的时候，RStudio支持一键通过**knitr**生成PDF，只要RStudio的选项配置中选的是**knitr**（你也可以选Sweave作为编译引擎，我就当你是要怀旧好了），并且你的R里面已经安装了**knitr**包。后来我们发现Sweave其实十多年前就提出了一个有用的概念，但这么多年都没有真正实现过，就是Rnw文档与PDF文档的同步。高级LaTeX用户知道，在LaTeX世界里有tex文件和PDF同步的可能，很多编辑器也支持这种同步，就是可以从tex源文件的某个位置直接跳到PDF文档中相应的页上，反之也可以跳回来，这种导航对查错和对比检查非常有用。对Rnw文档来说，支持这种同步导航就差那么一步，原因是Rnw被编译为tex文档时，两个文档的行号不一定能完全对应，比如Rnw中5行源代码可能会生成20行tex输出，这样两个文档的行号就错开了，即使tex文档支持同步导航，从Rnw跳到PDF或跳回来就跳不准了。Sweave提出了一个叫`concordance`的选项，用来记录Rnw和tex文件的行号差异，但具体怎么实现导航，就被遗忘在滚滚红尘中了。RStudio把这个旧摊子捡起来，拍拍土，重新开张了，不仅实现了Rnw和PDF之间互跳（Ctrl + 单击），而且实现了错误行号导航，如果编译出错，你可以直接知道是哪段代码出错了。RStudio也实现了代码段选项的自动补全，让文档写起来更快。
 
